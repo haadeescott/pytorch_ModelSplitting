@@ -1,0 +1,9 @@
+﻿Model,Accuracy_Labrador,Avg_InferenceTime,Avg_InferenceTime_withoutSGX,Total_CPUClockCycles_SGX_inferencing,Used_RAM (MB) for inferencing without SGX (total: 15.63GB),Used_RAM (GB)(Available: ) (Total:7.903 GB),CPU_utilization_withoutSGX +2%,CPU_utilization_SGX,CPU_utilization_SGXcompilation_Only,SGX_CompilationClockCycle (seconds),SGX_Compilation_And_Inference_ClockCycle (seconds) - overhead at first run after Make clean,Overhead (seconds),Memory_Footprint (MB) for SGX compilation,Memory_Footprint (MB) for SGX inferencing,Memory Footprint (MB) without SGX,Avg_InferenceTime_withoutSGX_withOverhead
+Alexnet,42.46732712,7.5913,0.604,87.65,844.029,2.157,36.20%,33.40%,25.60%,10.75,133.51,35.11,0.0898,3.8086,258.02,3.734
+Resnet50,52.36604691,3.66,0.617,84.44,797.139,2.134,40.60%,33.90%,25.50%,10.58,129.08,34.06,0.0859,3.8047,215.91,1.651
+Resnet101,48.86914825,6.5771,0.762,87.17,922.18,2.25,42%,34.10%,25.50%,10.72,133.75,35.86,0.08944,3.8086,330.98,2.835
+Vgg16,59.74912643,13.665,0.7111,95.64,1219.15,2.529,44%,33.40%,25.60%,11.21,142.54,35.96,0.0859,3.7969,639.62,7.883
+Vgg19,86.72389221,14.05,0.7612,96.13,1250.41,2.552,44.20%,33.30%,25.30%,11.53,143.11,35.45,0.0898,3.8086,668.24,8.255
+MobilenetV3_small,38.9160881,1.559,0.544,80.89,64.08,1.968,37.40%,33.90%,25.20%,10.36,129.82,38.57,0.08593,1.332,58.44,0.247
+MobilenetV3_large,95.93361664,2.016,0.5917,81.79,181.39,2.031,38.00%,34.00%,26%,10.3,127.96,35.87,0.089844,1.7891,110.05,0.428
+Squeezenet,88.6135788,1.521,0.55,81.77,656.467,1.975,38.60%,33.80%,25.30%,10.17,126.78,34.84,0.089836,3.7969,75.43,0.138
