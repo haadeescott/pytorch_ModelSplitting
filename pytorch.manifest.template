@@ -1,0 +1,108 @@
+# PyTorch manifest template
+
+loader.preload = "file:{{ gramine.libos }}"  # for compatibility with v1.0
+
+loader.entrypoint = "file:{{ gramine.libos }}"
+libos.entrypoint = "{{ entrypoint }}"
+
+loader.log_level = "{{ log_level }}"
+
+loader.env.LD_LIBRARY_PATH = "/lib:/usr/lib:{{ arch_libdir }}:/usr/{{ arch_libdir }}"
+
+loader.insecure__use_cmdline_argv = true
+loader.insecure__use_host_env = true
+
+loader.pal_internal_mem_size = "128M"
+
+fs.mount.lib.type = "chroot"
+fs.mount.lib.path = "/lib"
+fs.mount.lib.uri = "file:{{ gramine.runtimedir() }}/"
+
+fs.mount.lib2.type = "chroot"
+fs.mount.lib2.path = "{{ arch_libdir }}"
+fs.mount.lib2.uri = "file:{{ arch_libdir }}"
+
+fs.mount.usr.type = "chroot"
+fs.mount.usr.path = "/usr"
+fs.mount.usr.uri = "file:/usr"
+
+fs.mount.etc.type = "chroot"
+fs.mount.etc.path = "/etc"
+fs.mount.etc.uri = "file:/etc"
+
+fs.mount.tmp.type = "chroot"
+fs.mount.tmp.path = "/tmp"
+fs.mount.tmp.uri = "file:/tmp"
+
+# PyTorch loads its pre-trained models from here
+# Uncomment lines below if you want to use torchvision.model.alexnet(pretrained=True)
+# fs.mount.torch.type = "chroot"
+# fs.mount.torch.path = "{{ env.HOME }}/.cache/torch"
+# fs.mount.torch.uri = "file:{{ env.HOME }}/.cache/torch"
+
+fs.mount.pip.type = "chroot"
+fs.mount.pip.path = "{{ env.HOME }}/.local/lib"
+fs.mount.pip.uri = "file:{{ env.HOME }}/.local/lib"
+
+sgx.nonpie_binary = true
+sgx.enclave_size = "8G"
+sgx.thread_num = 256
+
+sgx.trusted_files = [
+  "file:{{ gramine.libos }}",
+  "file:{{ entrypoint }}",
+  "file:{{ gramine.runtimedir() }}/",
+  "file:{{ arch_libdir }}/",
+  "file:/usr/{{ arch_libdir }}/",
+  "file:{{ python.stdlib }}/",
+  "file:{{ python.distlib }}/",
+  "file:{{ env.HOME }}/.local/lib/",
+  "file:{{ python.get_path('stdlib', vars={'installed_base': '/usr/local'}) }}/",
+  # "file:pytorchexample.py",
+  "file:pyTorchSplit_Alexnet_12.py",
+  "file:classes.txt",
+  "file:input.jpg",
+
+  # Pre-trained model saved as a file
+  "file:submodel_1.pt",
+  "file:submodel_2.pt",
+  "file:submodel_3.pt",
+  "file:submodel_4.pt",
+  "file:submodel_5.pt",
+  "file:submodel_6.pt",
+  "file:submodel_7.pt",
+  "file:submodel_8.pt",
+  "file:submodel_9.pt",
+  "file:submodel_10.pt",
+  "file:submodel_11.pt",
+  "file:Main_Submodel2.pt"
+  # Uncomment line below if you want to use torchvision.model.alexnet(pretrained=True)
+  # "file:{{ env.HOME }}/.cache/torch/checkpoints/alexnet-owt-4df8aa71.pth",
+]
+
+sgx.allowed_files = [
+  "file:/tmp",
+  "file:/etc/apt/apt.conf.d",
+  "file:/etc/apt/apt.conf",
+  "file:/etc/default/apport",
+  "file:/etc/nsswitch.conf",
+  "file:/etc/group",
+  "file:/etc/passwd",
+  "file:/etc/host.conf",
+  "file:/etc/hosts",
+  "file:/etc/gai.conf",
+  "file:/etc/resolv.conf",
+  "file:/etc/fstab",
+  "file:result_alexnet.txt",
+  "file:decryptedAESsecret.txt"
+]
+
+# Gramine optionally provides patched OpenMP runtime library that runs faster
+# inside SGX enclaves (execute `make -C LibOS gcc` to generate it). Uncomment
+# the lines below to use the patched library. PyTorch's SGX perf overhead
+# decreases on some workloads from 25% to 8% with this patched library. Note
+# that we need to preload the library because PyTorch's distribution renames
+# libgomp.so to smth like libgomp-7c85b1e2.so.1, so it's not just a matter of
+# searching in the Gramine's Runtime path first, but a matter of intercepting
+# OpenMP functions.
+# loader.env.LD_PRELOAD = "/lib/libgomp.so.1"
