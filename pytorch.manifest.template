@@ -58,24 +58,12 @@ sgx.trusted_files = [
   "file:{{ python.distlib }}/",
   "file:{{ env.HOME }}/.local/lib/",
   "file:{{ python.get_path('stdlib', vars={'installed_base': '/usr/local'}) }}/",
-  # "file:pytorchexample.py",
-  "file:pyTorchSplit_Alexnet_12.py",
+  "file:pyTorchSplit_alexnet.py",
   "file:classes.txt",
   "file:input.jpg",
 
   # Pre-trained model saved as a file
-  "file:submodel_1.pt",
-  "file:submodel_2.pt",
-  "file:submodel_3.pt",
-  "file:submodel_4.pt",
-  "file:submodel_5.pt",
-  "file:submodel_6.pt",
-  "file:submodel_7.pt",
-  "file:submodel_8.pt",
-  "file:submodel_9.pt",
-  "file:submodel_10.pt",
-  "file:submodel_11.pt",
-  "file:Main_Submodel2.pt"
+  "file:alexnet-pretrained.pt"
   # Uncomment line below if you want to use torchvision.model.alexnet(pretrained=True)
   # "file:{{ env.HOME }}/.cache/torch/checkpoints/alexnet-owt-4df8aa71.pth",
 ]
@@ -94,7 +82,6 @@ sgx.allowed_files = [
   "file:/etc/resolv.conf",
   "file:/etc/fstab",
   "file:result_alexnet.txt",
-  "file:decryptedAESsecret.txt"
 ]
 
 # Gramine optionally provides patched OpenMP runtime library that runs faster
