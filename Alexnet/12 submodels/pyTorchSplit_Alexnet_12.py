@@ -1,3 +1,4 @@
+from re import sub
 from torchvision import models
 import torch
 import os
@@ -8,6 +9,9 @@ from torchvision import transforms
 from PIL import Image
 import os, random, struct, binascii
 import time
+import gc
+import functools
+from sys import getrefcount
 
 # prepare class Flatten to avoid pyTorch model bug
 class Flatten(nn.Module):
@@ -20,20 +24,6 @@ class Flatten(nn.Module):
 
 # Start of execution time
 start_time = time.perf_counter()
-
-# Load the model from a file
-submodel_1 = torch.load("submodel_1.pt")
-submodel_2 = torch.load("submodel_2.pt")
-submodel_3 = torch.load("submodel_3.pt")
-submodel_4 = torch.load("submodel_4.pt")
-submodel_5 = torch.load("submodel_5.pt")
-submodel_6 = torch.load("submodel_6.pt")
-submodel_7 = torch.load("submodel_7.pt")
-submodel_8 = torch.load("submodel_8.pt")
-submodel_9 = torch.load("submodel_9.pt")
-submodel_10 = torch.load("submodel_10.pt")
-submodel_11 = torch.load("submodel_11.pt")
-Main_Submodel2 = torch.load("Main_Submodel2.pt")
 
 # Prepare a transform to get the input image into a format (e.g., x,y dimensions) the classifier
 # expects.
@@ -55,32 +45,93 @@ img_t = transform(img)
 # Returns a new tensor with a dimension of size specified
 batch_t = torch.unsqueeze(img_t, 0)
 
-# Prepare the model and run the classifier.
-submodel_1.eval()
-submodel_2.eval()
-submodel_3.eval()
-submodel_4.eval()
-submodel_5.eval()
-submodel_6.eval()
-submodel_7.eval()
-submodel_8.eval()
-submodel_9.eval()
-submodel_10.eval()
-submodel_11.eval()
-Main_Submodel2.eval()
+# intermediate result to be stored in a single variable
+ 
+# output_submodel_1  = submodel_1(batch_t)
+# print("original:", output_submodel_1)
+# # store intermediate result in memory
+# # flush cache
 
-output_submodel_1 = submodel_1(batch_t)
-output_submodel_2 = submodel_2(output_submodel_1)
-output_submodel_3 = submodel_3(output_submodel_2)
-output_submodel_4 = submodel_4(output_submodel_3)
-output_submodel_5 = submodel_5(output_submodel_4)
-output_submodel_6 = submodel_6(output_submodel_5)
-output_submodel_7 = submodel_7(output_submodel_6)
-output_submodel_8 = submodel_8(output_submodel_7)
-output_submodel_9 = submodel_9(output_submodel_8)
-output_submodel_10 = submodel_10(output_submodel_9)
-output_submodel_11 = submodel_11(output_submodel_10)
-out = Main_Submodel2(output_submodel_11)
+# output_submodel_2 = submodel_2(output_submodel_1)
+# temp_result = output_submodel_2
+
+# # reload intermediate result
+# # flush cache
+
+# lru cache decorater: wraps a function with a memoizing callable that saves up to maxsize of most recent calls.
+# if Maxsize is set to None, LRU is disabled. Cache can grow without bond
+# @functools.lru_cache(maxsize=None)
+def tempModel(out, model):
+    # set model to inference mode
+    model.eval()
+    out = model(out)
+    # deletes intermediary memory address used to store model
+    # and removes reference to submodel
+    # even without deleting 'model' during execution, reference count for submodel will increase, and after execution will decrease back to its original value
+    del model
+    # only keep 'out' variable
+    return out
+
+# instead of reuploading the model, only load model into variable when required
+submodel = torch.load("submodel_1.pt")
+out = tempModel(batch_t, submodel)
+print("Start of program")
+print("submodel ref count: ", getrefcount(submodel))
+print("out ref count: ", getrefcount(out))
+print("-----------")
+# clears and invalidates cache inside tempModel function
+# tempModel.cache_clear()
+# del submodel
+# once submodel has been deleted, virtual memory adress will have no assignment to the variable
+# submodel is now undefined
+# print(hex(id(submodel))) <-- will not be able print address as variable is not defined
+
+submodel = torch.load("submodel_2.pt")
+# print(id(submodel))
+out = tempModel(out, submodel)
+# tempModel.cache_info()
+# tempModel.cache_clear()
+# del submodel
+
+submodel = torch.load("submodel_3.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_4.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_5.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_6.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_7.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_8.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_9.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_10.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("submodel_11.pt")
+out = tempModel(out, submodel)
+# del submodel
+
+submodel = torch.load("Main_Submodel2.pt")
+out = tempModel(out, submodel)
+
 
 # Load the classes from disk.
 with open('classes.txt') as f:
@@ -91,6 +142,26 @@ _, indices = torch.sort(out, descending=True)
 
 # Convert into percentages.
 percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
+# del out
+# gc.collect()
+
+# Collect all objects inside the lru cache wrapper
+# objects = [i for i in gc.get_objects() 
+#            if isinstance(i, functools._lru_cache_wrapper)]
+  
+# Clear all objects inside objects
+# for object in objects:
+#     object.cache_clear()
+
+print("End of program")
+print("submodel ref count: ", getrefcount(submodel))
+print("out ref count: ", getrefcount(out))
+submodel = None 
+out = None
+
+# collect all trash objects (objects values that have been dereferenced)
+gc.collect()
+
 inference_time = time.perf_counter()
 print("End of inference time: ", inference_time - start_time, "seconds")
 
