@@ -16,6 +16,14 @@
 - Kernel Version: Linux Version 5.13.0-1017-Azure
 - Allocated size for Gramine-SGX enclave: 8GB
 
+### Demonstration breakdown of process flow
+<video src='https://youtu.be/Zuak5Wn50jA' width=180/>
+- Encrypt Model
+- Encode key with wrapper key -> Secret Key
+- Upload Model and Secret Key to SGX Machine
+- Decode Secret Key and extract key
+- Launch enclave and decrypt model in enclave and execute inference
+
 ### Prepare all the pretrained models
 Run `python3 dl-pretrained-models.py` to download and save all the pretrained models:
 ```  
