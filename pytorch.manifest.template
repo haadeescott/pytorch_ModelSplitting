@@ -62,8 +62,7 @@ sgx.trusted_files = [
   "file:classes.txt",
   "file:input.jpg",
 
-  # Pre-trained model saved as a file
-  "file:alexnet-pretrained.pt"
+  # Pre-trained model saved as a allowed_files
   # Uncomment line below if you want to use torchvision.model.alexnet(pretrained=True)
   # "file:{{ env.HOME }}/.cache/torch/checkpoints/alexnet-owt-4df8aa71.pth",
 ]
@@ -81,7 +80,10 @@ sgx.allowed_files = [
   "file:/etc/gai.conf",
   "file:/etc/resolv.conf",
   "file:/etc/fstab",
-  "file:result_alexnet.txt",
+  "file:result.txt",
+  "file:alexnet-pretrained.pt",
+  "file:alexnet-pretrained_enc.pt",
+  "file:secrets/",
 ]
 
 # Gramine optionally provides patched OpenMP runtime library that runs faster
