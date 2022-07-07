@@ -17,7 +17,8 @@
 - Allocated size for Gramine-SGX enclave: 8GB
 
 ### Demonstration breakdown of process flow
-<video src='https://youtu.be/Zuak5Wn50jA' width=180/>
+[![Watch the video](https://img.youtube.com/vi/Zuak5Wn50jA/default.jpg)](https://youtu.be/Zuak5Wn50jA)
+
 - Encrypt Model
 - Encode key with wrapper key -> Secret Key
 - Upload Model and Secret Key to SGX Machine
