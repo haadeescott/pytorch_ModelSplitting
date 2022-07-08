@@ -22,6 +22,8 @@
 **The objective is to ensure the user is able to execute inferencing while preserving privacy of their computation and their model.**
 Firstly encrypt the model(s) using a Key. Encode the Key with a wrapper-key => Secret Key with the SGX protected file mechanism. The Secret Key now can only be decoded when the user completes the EPID Attestation. where the Intel attestation service will provision a secret that decodes and reads the Secret Key into a useable Key. Once completed, the user can then launch the SGX enclave as per the configurations from the SGX manifest file and decrypt the model, and use Gramine-SGX pytorch inferencing function to execute the script.
 
+### Disclaimer
+> The demonstration includes the attestation service that is not covered by this repository. The only works included here are the model splitting process and the benchmarking performance tests
 
 ### Prepare all the pretrained models
 Run `python3 dl-pretrained-models.py` to download and save all the pretrained models:
@@ -95,5 +97,14 @@ gramine-sgx ./pytorch pyTorchSplit_alexnet.py
 ```
 
 ### Results
-The results folder contains all the `.csv` files that has the performance results and metrics for each of the model networks. `../plot_Images/` contains all the line charts plotted with the metrics and the benchmarking performances.
+The results folder contains all the `.csv` files that has the performance results and metrics for each of the model networks. `../plot_Images/` contains all the line charts plotted with the metrics and the benchmarking performances. The performance tests include:
+- CPU Utilisation %
+- Memory Footprint KB
+- Power Consumption W
+
+The performance of a single execution were broken down into different segments:
+- overhead incurred
+- inference
+- total execution time
+These were benchmarked against both native and SGX environment to observe the overhead costs.
 
