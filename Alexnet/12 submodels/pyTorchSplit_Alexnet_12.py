@@ -8,6 +8,7 @@ from torchvision import datasets, transforms
 from torchvision import transforms
 from PIL import Image
 import os, random, struct, binascii
+from Crypto.Cipher import AES
 import time
 import gc
 import functools
@@ -45,22 +46,6 @@ img_t = transform(img)
 # Returns a new tensor with a dimension of size specified
 batch_t = torch.unsqueeze(img_t, 0)
 
-# intermediate result to be stored in a single variable
- 
-# output_submodel_1  = submodel_1(batch_t)
-# print("original:", output_submodel_1)
-# # store intermediate result in memory
-# # flush cache
-
-# output_submodel_2 = submodel_2(output_submodel_1)
-# temp_result = output_submodel_2
-
-# # reload intermediate result
-# # flush cache
-
-# lru cache decorater: wraps a function with a memoizing callable that saves up to maxsize of most recent calls.
-# if Maxsize is set to None, LRU is disabled. Cache can grow without bond
-# @functools.lru_cache(maxsize=None)
 def tempModel(out, model):
     # set model to inference mode
     model.eval()
@@ -72,66 +57,90 @@ def tempModel(out, model):
     # only keep 'out' variable
     return out
 
+def getPass(path):
+    with open(path) as f:
+        pwd = f.readlines()
+        aesSecretDecryption = pwd[0]
+        f.close()
+        return aesSecretDecryption
+
+def decrypt_file(key, in_filename, out_filename, chunksize=24*1024):
+    #  Decrypts a file using AES (CBC mode) with the given key
+
+    with open(in_filename, 'rb') as infile:
+        origsize = struct.unpack('<Q', infile.read(struct.calcsize('Q')))[0]
+        iv = infile.read(16)
+        decryptor = AES.new(key.encode("utf8"), AES.MODE_CBC, iv)
+
+        with open(out_filename, 'wb') as outfile:
+            while True:
+                chunk = infile.read(chunksize)
+                if len(chunk) == 0:
+                    break
+                outfile.write(decryptor.decrypt(chunk))
+
+            outfile.truncate(origsize)
+
+print(" ")
+
+# specify which key to use to decrypt encrypted submodel
+# this assumes all submodels are encrypted sequentially
+print("Decrypting model...")
+decrypt_file(getPass('secrets/secret_1.txt'), 'submodel_1_enc.pt', 'submodel_1.pt')
+decrypt_file(getPass('secrets/secret_2.txt'), 'submodel_2_enc.pt', 'submodel_2.pt')
+decrypt_file(getPass('secrets/secret_3.txt'), 'submodel_3_enc.pt', 'submodel_3.pt')
+decrypt_file(getPass('secrets/secret_4.txt'), 'submodel_4_enc.pt', 'submodel_4.pt')
+decrypt_file(getPass('secrets/secret_5.txt'), 'submodel_5_enc.pt', 'submodel_5.pt')
+decrypt_file(getPass('secrets/secret_6.txt'), 'submodel_6_enc.pt', 'submodel_6.pt')
+decrypt_file(getPass('secrets/secret_7.txt'), 'submodel_7_enc.pt', 'submodel_7.pt')
+decrypt_file(getPass('secrets/secret_8.txt'), 'submodel_8_enc.pt', 'submodel_8.pt')
+decrypt_file(getPass('secrets/secret_9.txt'), 'submodel_9_enc.pt', 'submodel_9.pt')
+decrypt_file(getPass('secrets/secret_10.txt'), 'submodel_10_enc.pt', 'submodel_10.pt')
+decrypt_file(getPass('secrets/secret_11.txt'), 'submodel_11_enc.pt', 'submodel_11.pt')
+decrypt_file(getPass('secrets/secret_12.txt'), 'Main_Submodel2_enc.pt', 'Main_Submodel2.pt')
+print("Model decrypted!")
+print(" ")
+
 # instead of reuploading the model, only load model into variable when required
+# intermediate result to be stored in a single variable
 submodel = torch.load("submodel_1.pt")
 out = tempModel(batch_t, submodel)
+
 print("Start of program")
-print("submodel ref count: ", getrefcount(submodel))
-print("out ref count: ", getrefcount(out))
 print("-----------")
-# clears and invalidates cache inside tempModel function
-# tempModel.cache_clear()
-# del submodel
-# once submodel has been deleted, virtual memory adress will have no assignment to the variable
-# submodel is now undefined
-# print(hex(id(submodel))) <-- will not be able print address as variable is not defined
 
 submodel = torch.load("submodel_2.pt")
-# print(id(submodel))
 out = tempModel(out, submodel)
-# tempModel.cache_info()
-# tempModel.cache_clear()
-# del submodel
 
 submodel = torch.load("submodel_3.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_4.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_5.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_6.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_7.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_8.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_9.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_10.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("submodel_11.pt")
 out = tempModel(out, submodel)
-# del submodel
 
 submodel = torch.load("Main_Submodel2.pt")
 out = tempModel(out, submodel)
-
 
 # Load the classes from disk.
 with open('classes.txt') as f:
@@ -142,35 +151,25 @@ _, indices = torch.sort(out, descending=True)
 
 # Convert into percentages.
 percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
-# del out
-# gc.collect()
-
-# Collect all objects inside the lru cache wrapper
-# objects = [i for i in gc.get_objects() 
-#            if isinstance(i, functools._lru_cache_wrapper)]
-  
-# Clear all objects inside objects
-# for object in objects:
-#     object.cache_clear()
 
 print("End of program")
-print("submodel ref count: ", getrefcount(submodel))
-print("out ref count: ", getrefcount(out))
+
 submodel = None 
 out = None
+# once submodel has been deleted, virtual memory adress will have no assignment to the variable
+# submodel is now undefined
 
 # collect all trash objects (objects values that have been dereferenced)
 gc.collect()
 
 inference_time = time.perf_counter()
 print("End of inference time: ", inference_time - start_time, "seconds")
-
 print("\n----------Inferencing Completed----------\n")
 
-
 # Print the 5 most likely predictions.
-with open("result_alexnet.txt", "w") as outfile:
+with open("result.txt", "w") as outfile:
     outfile.write(str([(classes[idx], percentage[idx].item()) for idx in indices[0][:5]]))
 
 end_time = time.perf_counter()
 print("End of execution time: ", end_time - start_time, "seconds")
+
