@@ -6,8 +6,6 @@
    * The `<..>.py` file is the program to run the models inside the Gramine-SGX enclave
    * Requires the `pytorch.manifest.template` file to be updated with the appropriate files inside the **trusted** and **allowed** blocks
 
-* The benchmarking was done for executing a PyTorch model inference in Gramine-SGX environment, against native environment
-
 ### VM System information
 - OS: Linux (Ubuntu 20.0.04 LTS)
 - Size: Standard Dc4s v2 (4vcpus, 16GiB memory)
@@ -16,14 +14,14 @@
 - Kernel Version: Linux Version 5.13.0-1017-Azure
 - Allocated size for Gramine-SGX enclave: 8GB
 
-### Demonstration breakdown of process flow
-[![Watch the video](https://img.youtube.com/vi/Zuak5Wn50jA/default.jpg)](https://youtu.be/Zuak5Wn50jA)
+### Video demonstration on system process flow
+<a href="https://youtu.be/Zuak5Wn50jA" target="_blank">
+<img src="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Results/plot_Images/details_video.png" height="300" width="540">
+</a>
 
-- Encrypt Model
-- Encode key with wrapper key -> Secret Key
-- Upload Model and Secret Key to SGX Machine
-- Decode Secret Key and extract key
-- Launch enclave and decrypt model in enclave and execute inference
+**The objective is to ensure the user is able to execute inferencing while preserving privacy of their computation and their model.**
+Firstly encrypt the model(s) using a Key. Encode the Key with a wrapper-key => Secret Key with the SGX protected file mechanism. The Secret Key now can only be decoded when the user completes the EPID Attestation. where the Intel attestation service will provision a secret that decodes and reads the Secret Key into a useable Key. Once completed, the user can then launch the SGX enclave as per the configurations from the SGX manifest file and decrypt the model, and use Gramine-SGX pytorch inferencing function to execute the script.
+
 
 ### Prepare all the pretrained models
 Run `python3 dl-pretrained-models.py` to download and save all the pretrained models:
