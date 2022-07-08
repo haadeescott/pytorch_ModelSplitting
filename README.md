@@ -3,8 +3,15 @@
 * Each Model folder contains 2 subfolders that has a base model inference, and a model that has been split into 12 parts to conduct an inference.
    * eg: `Alexnet/12 submodels/pyTorchSplit_alexnet12.ipynb`
    * Uncomment and execute the **save pytorch model** cell to save the models inside the folder
-   * The `<..>.py` file is the program to run the models inside the Gramine-SGX enclave
-   * Requires the `pytorch.manifest.template` file to be updated with the appropriate files inside the **trusted** and **allowed** blocks
+* The `<..>.py` file is the program to run the models inside the Gramine-SGX enclave
+   * Requires the `pytorch.manifest.template` file to be updated with the appropriate files inside the **trusted** and **allowed** blocks. Example can be seen below.
+* Once Model(s) has been downloaded and saved using the **pyTorchSplit_<model>.ipynb** file, you can encrypt the Model(s) using the **encryptModel.py** program with any of the secret keys in the ```secrets/``` dir, and include ```<model>_enc.pt``` as its uniformed name. 
+* Upon decryption, you may remove the ```<model>_enc.pt``` and replace it as ```<model>.pt``` as can be seen as the standardised naming convention in the manifest file below. 
+
+
+## To note:
+> Only the <a href="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Alexnet/12%20submodels/pyTorchSplit_Alexnet_12.py">AlexNet</a> folder has the python inference script to decrypt 12 submodels and inference. You may replace this with other models. Most split submodels have the same naming convention, but just check again and ensure all submodel names are encrypted, decrypted, inferenced accordingly.
+
 
 ### VM System information
 - OS: Linux (Ubuntu 20.0.04 LTS)
@@ -13,6 +20,7 @@
 - CPU Model: Intel(R) Xeon(R) E-2288G CPU @ 3.70GHz
 - Kernel Version: Linux Version 5.13.0-1017-Azure
 - Allocated size for Gramine-SGX enclave: 8GB
+
 
 ### Video demonstration on system process flow
 <a href="https://youtu.be/Zuak5Wn50jA" target="_blank">
@@ -24,6 +32,7 @@ Firstly encrypt the model(s) using a Key. Encode the Key with a wrapper-key => S
 
 ### Disclaimer
 > The demonstration includes the attestation service that is not covered by this repository. The only works included here are the model splitting process and the benchmarking performance tests
+
 
 ### Prepare all the pretrained models
 Run `python3 dl-pretrained-models.py` to download and save all the pretrained models:
@@ -64,7 +73,7 @@ sgx.trusted_files = [
   "file:{{ python.distlib }}/",
   "file:{{ env.HOME }}/.local/lib/",
   "file:{{ python.get_path('stdlib', vars={'installed_base': '/usr/local'}) }}/",
-  "file:pyTorchSplit_alexnet.py",
+  "file:pyTorchSplit_alexnet.py", // include python script to run here
   "file:classes.txt",
   "file:input.jpg",
 
@@ -87,10 +96,14 @@ sgx.allowed_files = [
   "file:/etc/gai.conf",
   "file:/etc/resolv.conf",
   "file:/etc/fstab",
-  "file:result_alexnet.txt",
+  "file:result.txt",
+  "file:alexnet-pretrained.pt", // include name(s) of unencrypted model
+  "file:alexnet-pretrained_enc.pt", // include name(s) of encrypted model
+  "file:secrets/", // include secrets dir to allow secret keys to be read
 ]
 ```
 - Once the `pytorch.manifest.template` file has been updated, compile with SGX and execute the inference: 
+  - **gramine-sgx ./pytorch <python_script>.py**
 ```
 make SGX=1
 gramine-sgx ./pytorch pyTorchSplit_alexnet.py
