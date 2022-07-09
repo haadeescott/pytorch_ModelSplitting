@@ -1,6 +1,8 @@
 # Pytorch Model Splitting
 This work is done in line with the <a href="https://github.com/gramineproject/gramine">Gramine-SGX</a> framework that ports unmodified applications inside SGX enclaves. The Gramine <a href="https://gramine.readthedocs.io/en/stable/tutorials/pytorch/index.html">documentation</a> consists of a **PyTorch PPML Framework Tutorial** that allows for privacy preservation when inferencing ML models. The PyTorch Model Splitting work enhances the security measurements of this framework by partitioning a model into smaller submodels to increase the confidentiality of the usage of the models. Inferencing can only be done when the submodels are arranged correctly.
 
+This implementation can be used on the <a href="https://github.com/deislabs/mystikos">Mystikos</a> framework by porting over the python PyTorch inferencing application. Mystikos has a PyTorch/Onnx inference example but the documentation has since been removed. However, the other python application porting examples give a rough idea on how to execute the private inference <a href="https://github.com/deislabs/mystikos/blob/main/doc/user-getting-started-docker-python.md">here</a>.
+
 # Instructions
 * Clone this repo: `git clone https://github.com/haadeescott/pytorch_ModelSplitting `
 * Each Model folder contains 2 subfolders that has a base model inference, and a model that has been split into 12 parts to conduct an inference.
