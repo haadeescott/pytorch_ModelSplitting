@@ -18,7 +18,7 @@ This implementation can be used on the <a href="https://github.com/deislabs/myst
 > Only the <a href="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Alexnet/12%20submodels/pyTorchSplit_Alexnet_12.py">AlexNet</a> folder has the python inference script to decrypt 12 submodels and inference. You may replace this with other models. Most split submodels have the same naming convention, but just check again and ensure all submodel names are encrypted, decrypted, inferenced accordingly.
 
 
-### VM System information
+## VM System information
 - OS: Linux (Ubuntu 20.0.04 LTS)
 - Size: Standard Dc4s v2 (4vcpus, 16GiB memory)
 - CPU Processors: 4
@@ -27,7 +27,7 @@ This implementation can be used on the <a href="https://github.com/deislabs/myst
 - Allocated size for Gramine-SGX enclave: 8GB
 
 
-### Video demonstration on system process flow
+## Video demonstration on system process flow
 <a href="https://youtu.be/Zuak5Wn50jA" target="_blank">
 <img src="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Results/plot_Images/details_video.png" height="300" width="540">
 </a>
@@ -39,7 +39,7 @@ Firstly encrypt the model(s) using a Key. Encode the Key with a wrapper-key => S
 > The demonstration includes the attestation service that is not covered by this repository. The only works included here are the model splitting process and the benchmarking performance tests
 
 
-### Prepare all the pretrained models
+## Prepare all the pretrained models
 Run `python3 dl-pretrained-models.py` to download and save all the pretrained models:
 ```  
    - Alexnet
@@ -53,13 +53,13 @@ Run `python3 dl-pretrained-models.py` to download and save all the pretrained mo
 ```
 and store them inside the designated folders.
 
-### Guide for Model Splitting
+## Guide for Model Splitting
 - Requires torchvision to be installed: `` pip3 install torchvision``
 - All the model networks has an `AdaptiveAvgPool2d` layer that allows the output to be `Flatten()` and feed into the next layer to complete the inferencing after splitting the model. Without flattening, after splitting the model, the execution of model inference cannot be completed. 
 - The extraction of layers for each submodels can be adjusted accordingly, however the `<pyTorchSplit_...>.ipynb` can serve as a template.
 - Once all the **model/submodels** have been saved and dowloaded, store them into the appropriate folders to execute inference.
 
-### Prepare environment for inferencing in Gramine-SGX enclave
+## Prepare environment for inferencing in Gramine-SGX enclave
 Follow the instructions and install the SGX SDK and drivers [here](https://github.com/intel/linux-sgx.git). The `pytorch.manifest.template` requires the files to be appended and updated before compiling the program. Change the `sgx.enclave_size = "8G"` to the desired size **(recommended 4G and above)**. In the `sgx.trusted_files` block, include the python program, model, label class text file, and the input image to be inferenced. The `sgx.allowed_files` block should include the results text file for the output.
 
 ```
@@ -125,4 +125,7 @@ The performance of a single execution were broken down into different segments:
 - inference
 - total execution time
 These were benchmarked against both native and SGX environment to observe the overhead costs.
+
+# Tests
+The script ```Alexnet/pyTorchSplit_alexnet_test.py``` has a 2nd inferencing function that aims to identify the isolated inference time of running said execution in an SGX environment, as SGX does not allow any application based profiling inside the enclave. The performance metrics can be executed by running the ```readMetrics.sh``` shell script which executes reading of memory footprint, cpu utilisation, and power consumption over 100 iterations of 1 second cycle frame and 10 iterations of 10 seconds cycle frame, respectively.
 
