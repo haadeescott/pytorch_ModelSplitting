@@ -53,6 +53,10 @@ Run `python3 dl-pretrained-models.py` to download and save all the pretrained mo
 ```
 and store them inside the designated folders.
 
+### Concept for Model Splitting
+<img src="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Results/plot_Images/Diagram_4_Comparisons.png"></br>
+The model is split/partitioned after iterating through each layer of the model that can be accessed and extracted.
+
 ## Guide for Model Splitting
 - Requires torchvision to be installed: `` pip3 install torchvision``
 - All the model networks has an `AdaptiveAvgPool2d` layer that allows the output to be `Flatten()` and feed into the next layer to complete the inferencing after splitting the model. Without flattening, after splitting the model, the execution of model inference cannot be completed. 
@@ -114,7 +118,7 @@ make SGX=1
 gramine-sgx ./pytorch pyTorchSplit_alexnet.py
 ```
 
-### Results
+## Results
 The results folder contains all the `.csv` files that has the performance results and metrics for each of the model networks. `../plot_Images/` contains all the line charts plotted with the metrics and the benchmarking performances. The performance tests include:
 - CPU Utilisation %
 - Memory Footprint KB
@@ -125,6 +129,15 @@ The performance of a single execution were broken down into different segments:
 - inference
 - total execution time
 These were benchmarked against both native and SGX environment to observe the overhead costs.
+
+#### Gramine-SGX against Mystikos-SGX
+Mystikos-SGX consumes higher amounts of memory due to its usage of docker. </br>
+<img src="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Results/plot_Images/Performance_Against_Mystikos.png" width="300" height="150">
+<img src="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Results/plot_Images/Performance_Against_Mystikos_2.png" width="300" height="150">
+
+### Gramine-SGX AlexNet performance
+The Alexnet model is benchmarked against the different number of partitions for the inference timing. The Alexnet model is measured against 12 submodels of Alexnet partitioned, and its performance is plotted to identify if any overhead has incurred. </br>
+<img src="https://github.com/haadeescott/pytorch_ModelSplitting/blob/main/Results/plot_Images/Performance_Alexnet_All_Submodels.png">
 
 # Tests
 The script ```Alexnet/pyTorchSplit_alexnet_test.py``` has a 2nd inferencing function that aims to identify the isolated inference time of running said execution in an SGX environment, as SGX does not allow any application based profiling inside the enclave. The performance metrics can be executed by running the ```readMetrics.sh``` shell script which executes reading of memory footprint, cpu utilisation, and power consumption over 100 iterations of 1 second cycle frame and 10 iterations of 10 seconds cycle frame, respectively.
